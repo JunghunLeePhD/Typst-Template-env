@@ -14,9 +14,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME \
     && \
-    curl -L "https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz" \
-    | tar -xJ --strip-components=1 -C /usr/local/bin typst-x86_64-unknown-linux-musl/typst \
+    # -----------------------------------------------------------------------
+    # ARCHITECTURE DETECTION LOGIC
+    # -----------------------------------------------------------------------
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        TYPST_ARCH="x86_64-unknown-linux-musl"; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        TYPST_ARCH="aarch64-unknown-linux-musl"; \
+    else \
+        echo "Unsupported architecture: $ARCH"; exit 1; \
+    fi && \
+    echo "Downloading Typst for $ARCH..." && \
+    curl -L "https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-${TYPST_ARCH}.tar.xz" \
+    | tar -xJ --strip-components=1 -C /usr/local/bin "typst-${TYPST_ARCH}/typst" \
     && \
+    # -----------------------------------------------------------------------
+    # Cleanup to keep image small
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     fc-cache -fv
 
