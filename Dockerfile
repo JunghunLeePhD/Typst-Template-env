@@ -6,10 +6,11 @@ ARG USERNAME=vscode
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# 1. Install dependencies (ADDED: unzip)
+# 1. Install dependencies (ADDED: openssh)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl xz-utils git make fontconfig zsh sudo wget vim \
     unzip \
+    openssh-client \
     && \
     groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/zsh \
